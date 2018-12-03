@@ -1,4 +1,4 @@
-module HaskellBool where
+module HaskellBook where
 
 import           Data.List
 import           LibHaskellBool
