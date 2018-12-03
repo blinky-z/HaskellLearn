@@ -36,7 +36,7 @@ doubleFact 2 = 2
 doubleFact 1 = 1
 doubleFact n = n * doubleFact (n - 2)
 --
--- фибоначчи
+-- фибоначчи через рекурсию самой себя
 fibonacci 0 = 0
 fibonacci 1 = 1
 fibonacci (-1) = 1
@@ -97,5 +97,13 @@ sum'n'count x | x < 0 = sum'n'count (x * (-1))
     countDigitsHelper acc 0 = acc
     countDigitsHelper acc x = countDigitsHelper (acc + 1) (x `div` 10)
 --
-main :: IO ()
-main = putStrLn("Hello, World!")
+--Найти определенный интеграл методом трапеций. Кол-во отрезков = 1000 https://stepik.org/lesson/8414/step/9?unit=1553
+integration :: (Double -> Double) -> Double -> Double -> Double
+integration f a b | a > b = -integration f b a
+                  | otherwise = h * (((f a + f b) / 2) + integrationHelper 0 (a + h) 1)
+  where
+    h = (b - a) / 1000
+    integrationHelper :: Double -> Double -> Int -> Double
+    integrationHelper acc x i | i == 1000 = acc
+                              | otherwise = integrationHelper (acc + f x) (x + h) (i + 1)
+--
