@@ -36,13 +36,26 @@ multSecondRes = multSecond ('A',2) ('E',7)
 on3 :: (b -> b -> b -> c) -> (a -> b) -> a -> a -> a -> c
 on3 op f x y z = op (f x) (f y) (f z)
 --
---
+-- Композиция функций, бесточечный стиль
 doItYourself = f . g . h
 
-f x = logBase 2 x
+f = logBase 2
 
-g x = x * x * x
+g = (** 3)
 
-h x = max 42 x
+h = max 42
 
+--
+--Сколько разных всегда завершающихся функций с типом a -> (a,b) -> a -> (b,a,a) можно реализовать?
+--https://stepik.org/lesson/12398/step/5?unit=2828
+f1 :: t1 -> (t1,t2) -> t1 -> (t2,t1,t1)
+f1 a (b,c) d | True = (c,a,b)
+             | True = (c,a,d)
+             | True = (c,b,a)
+             | True = (c,b,d)
+             | True = (c,d,a)
+             | True = (c,d,b)
+             | True = (c,a,a)
+             | True = (c,b,b)
+             | True = (c,d,d)
 --
