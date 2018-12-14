@@ -27,3 +27,13 @@ oddsOnly xs = oddsOnlyHelper xs []
                               | otherwise = oddsOnlyHelper xs ans
     reverseList rxs [] = rxs
     reverseList rxs (x:xs) = reverseList (x:rxs) xs
+
+--
+--
+-- Реализуйте функцию isPalindrome, которая определяет, является ли переданный ей список палиндромом.
+isPalindrome :: Eq a => [a] -> Bool
+isPalindrome [] = True
+isPalindrome [_] = True
+isPalindrome [x,y] = x == y
+isPalindrome (x:list) | x == head (reverse list) = isPalindrome (reverse (tail (reverse list)))
+                      | otherwise = False
