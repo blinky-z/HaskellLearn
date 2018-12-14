@@ -37,3 +37,6 @@ isPalindrome [_] = True
 isPalindrome [x,y] = x == y
 isPalindrome (x:list) | x == head (reverse list) = isPalindrome (reverse (tail (reverse list)))
                       | otherwise = False
+
+isPalindrome' :: Eq a => [a] -> bool
+isPalindrome' xs = xs == reverse xs
