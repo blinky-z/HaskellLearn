@@ -1,1 +1,1 @@
-# haskellCourse
+# HaskellLearn

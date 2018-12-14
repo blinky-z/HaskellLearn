@@ -1,5 +1,5 @@
 .stack-work/
-haskellCourse.cabal
+HaskellLearn.cabal
 *~
-.idea/
-.out/
+.idea
+.out

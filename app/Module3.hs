@@ -16,6 +16,7 @@ nTimes x n = nTimesHelper 0 []
   where
     nTimesHelper cnt list | cnt == n = list
                           | otherwise = nTimesHelper (cnt + 1) (x : list)
+
 --
 --
 -- Сформируйте список целых чисел, содержащий только те элементы исходного списка, значение которых нечетно.
@@ -35,8 +36,12 @@ isPalindrome :: Eq a => [a] -> Bool
 isPalindrome [] = True
 isPalindrome [_] = True
 isPalindrome [x,y] = x == y
-isPalindrome (x:list) | x == head (reverse list) = isPalindrome (reverse (tail (reverse list)))
+isPalindrome (x:list) | x == last list = isPalindrome (init list)
                       | otherwise = False
 
-isPalindrome' :: Eq a => [a] -> bool
+isPalindrome' :: Eq a => [a] -> Bool
 isPalindrome' xs = xs == reverse xs
+
+--
+--
+--

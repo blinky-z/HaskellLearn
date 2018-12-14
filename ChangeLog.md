@@ -1,3 +1,3 @@
-# Changelog for haskellCourse
+# Changelog for HaskellLearn
 
 ## Unreleased changes
