@@ -1,5 +1,7 @@
 ﻿module Module3 where
 
+import Data.Char
+
 -- Работа со списками
 
 -- Реализуйте функцию addTwoElements, которая бы добавляла два переданных ей значения в голову переданного списка.
@@ -63,17 +65,16 @@ sum3 xs ys zs = sum3Helper [] 0
 -- https://stepik.org/lesson/8326/step/13?unit=1474
 groupElems :: Eq a => [a] -> [[a]]
 groupElems [] = []
-groupElems xs = groupElemsHelper xs [] []
-  where
-    groupElemsHelper [x] curlist res
-      | null curlist = reverse ([x] : res)
-      | x == last curlist = reverse (curlist : res)
-      | otherwise = reverse ([x] : res)
-    groupElemsHelper (prev:xs) curlist res
-      | null curlist = groupElemsHelper (prev:xs) (prev : curlist) res
-      | head xs == prev = groupElemsHelper xs (head xs : curlist) res
-      | otherwise = groupElemsHelper xs [] (curlist : res)
-
+groupElems xs = ys : groupElems zs where
+  (ys, zs) = span (== head xs) xs
 --
 --
+-- Функции высших порядков над списками
 --
+-- Напишите функцию
+-- readDigits
+-- ,принимающую строку и возвращающую пару строк.
+-- Первый элемент пары содержит цифровой префикс исходной строки, а второй - ее оставшуюся часть.
+-- https://stepik.org/lesson/12321/step/3?unit=2785
+readDigits :: String -> (String, String)
+readDigits = span isDigit
