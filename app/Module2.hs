@@ -1,9 +1,11 @@
 module Module2 where
+
 import Data.Function
 
 -- Полиморфная функция - параметрический полиморфизм
 getSecondFrom :: t1 -> t2 -> t3 -> t2
 getSecondFrom a b c = b
+
 -- Сколько разных функций (т.е. возвращающих разные значения) можно реализовать с таким объявлением
 -- https://stepik.org/lesson/8417/step/4?unit=1555
 --a -> a -> b -> a -> a
@@ -20,12 +22,14 @@ getSecondFrom a b c = b
 -- тип функции on :
 -- (b -> b -> c) -> (a -> b) -> a -> a -> c
 -- функция on применяет функцию h на каждый переданный аргумент, а потом к вычеслоенным значениям применяет бинарный оператор g
-
 multSecond = g1 `on` h1
+
 g1 = (*)
+
 h1 = (snd)
 
-multSecondRes = multSecond ('A',2) ('E',7)
+multSecondRes = multSecond ('A', 2) ('E', 7)
+
 -- тут самое интересное в том, что multSecond не принимает аргументов!
 -- это работает так:
 -- так как multSecond эквивалентно выражению (on g h), а функция on ожидает оператор (он передан - g), функцию (также передана - h),
@@ -34,9 +38,9 @@ multSecondRes = multSecond ('A',2) ('E',7)
 -- это называется бесточечный стиль
 --
 -- Реализовать свою функцию on3, которая в качестве первого аргумента принимает не бинарный оператор, а трехместную функцию
-
 on3 :: (b -> b -> b -> c) -> (a -> b) -> a -> a -> a -> c
 on3 op f x y z = op (f x) (f y) (f z)
+
 --
 -- Композиция функций, бесточечный стиль
 doItYourself = f . g . h
@@ -50,16 +54,18 @@ h = max 42
 --
 --Сколько разных всегда завершающихся функций с типом a -> (a,b) -> a -> (b,a,a) можно реализовать?
 --https://stepik.org/lesson/12398/step/5?unit=2828
-f1 :: t1 -> (t1,t2) -> t1 -> (t2,t1,t1)
-f1 a (b,c) d | True = (c,a,b)
-             | True = (c,a,d)
-             | True = (c,b,a)
-             | True = (c,b,d)
-             | True = (c,d,a)
-             | True = (c,d,b)
-             | True = (c,a,a)
-             | True = (c,b,b)
-             | True = (c,d,d)
+f1 :: t1 -> (t1, t2) -> t1 -> (t2, t1, t1)
+f1 a (b, c) d
+  | True = (c, a, b)
+  | True = (c, a, d)
+  | True = (c, b, a)
+  | True = (c, b, d)
+  | True = (c, d, a)
+  | True = (c, d, b)
+  | True = (c, a, a)
+  | True = (c, b, b)
+  | True = (c, d, d)
+
 --
 -- карирование функций
 -- есть функция on - она первым аргументом ожидает некарированную функцию, бинарный оператор
@@ -86,21 +92,14 @@ f1 a (b,c) d | True = (c,a,b)
 -- реализация uncurry: uncurry f p             =  f (fst p) (snd p)
 -- Пример использования uncurry - uncurry (flip const) (5,6)
 --
-
-
 -- Заменить выражение curry id на эквивалентное https://stepik.org/lesson/12398/step/7?unit=2828
 --(,)
 --
-
-
 -- Заменить выражение uncurry (flip const) на эквивалентное https://stepik.org/lesson/12398/step/8?unit=2828
 --snd
 --
-
-
 -- Реализовать функцию swap https://stepik.org/lesson/12398/step/9?unit=2828
 -- uncurry (flip (,))
-
 -- Как это работает
 -- Смотрим на объявление функции uncurry:
 -- uncurry :: (a -> b -> c) -> (a, b) -> c
@@ -110,7 +109,6 @@ f1 a (b,c) d | True = (c,a,b)
 -- карированной функции (a -> b -> c)
 -- (a -> b -> c) - наша функция (flip (,))
 -- (a, b) - и является переданной в функцию парой, в котором необходимо переставить элементы местами
-
 -- объявления функций flip и (,)
 -- flip:
 -- flip :: (a -> b -> c) -> b -> a -> c
@@ -158,42 +156,56 @@ instance Printable () where
 --
 -- реализовать представитель класса типов Printable для пары типа (a,b)
 -- https://stepik.org/lesson/8420/step/9?unit=1556
-instance (Printable a, Printable b) => Printable (a, b) where {-тут мы требуем, чтобы элементы пары относились к классу типов
+instance (Printable a, Printable b) => Printable (a, b) {-тут мы требуем, чтобы элементы пары относились к классу типов
 Printable, чтобы мы могли совершить на них операцию toString-}
-  toString (x,y) = "(" ++ toString x ++ "," ++ toString y ++ ")"
+                                                               where
+  toString (x, y) = "(" ++ toString x ++ "," ++ toString y ++ ")"
+
 --
 -- Задача на расширение класса типов
 -- https://stepik.org/lesson/12399/step/3?unit=2829
 class KnownToGork a where
-    stomp :: a -> a
-    doesEnrageGork :: a -> Bool
+  stomp :: a -> a
+  doesEnrageGork :: a -> Bool
 
 class KnownToMork a where
-    stab :: a -> a
-    doesEnrageMork :: a -> Bool
+  stab :: a -> a
+  doesEnrageMork :: a -> Bool
 
-class (KnownToGork a, KnownToMork a) => KnownToGorkAndMork a where {-расширение классов типов-}
-    stompOrStab :: a -> a
-    stompOrStab x | doesEnrageGork x && doesEnrageMork x = stomp (stab x)
-    stompOrStab x | doesEnrageMork x = stomp x
-    stompOrStab x | doesEnrageGork x = stab x
-    stompOrStab x | otherwise = x
+class (KnownToGork a, KnownToMork a) =>
+      KnownToGorkAndMork a {-расширение классов типов-}
+  where
+  stompOrStab :: a -> a
+  stompOrStab x
+    | doesEnrageGork x && doesEnrageMork x = stomp (stab x)
+  stompOrStab x
+    | doesEnrageMork x = stomp x
+  stompOrStab x
+    | doesEnrageGork x = stab x
+  stompOrStab x
+    | otherwise = x
+
 --
 -- Задача: реализовать расширение safeEnum, которое позволит создавать представители класса SafeEnum и осуществлять тотальные
 -- операции sssucc и spred
 -- https://stepik.org/lesson/12399/step/7?unit=2829
-class (Enum a, Eq a, Bounded a) => SafeEnum a where
+class (Enum a, Eq a, Bounded a) =>
+      SafeEnum a
+  where
   ssucc :: a -> a
-  ssucc x | x == maxBound = minBound
-          | otherwise = succ x
-
+  ssucc x
+    | x == maxBound = minBound
+    | otherwise = succ x
   spred :: a -> a
-  spred x | x == minBound = maxBound
-          | otherwise = pred x
+  spred x
+    | x == minBound = maxBound
+    | otherwise = pred x
+
 --
 -- Реализовать функцию avg принимающая 3 аргумента типа Int и вычисляющую среднее значение
 avg :: Int -> Int -> Int -> Double
-avg x y z = fromInteger(toInteger x + toInteger y + toInteger z) / 3
+avg x y z = fromInteger (toInteger x + toInteger y + toInteger z) / 3
+
 -- Как это все работает:
 -- во, первых классное объяснение есть на степике:
 -- https://stepik.org/lesson/12399/step/9?discussion=339804&reply=339989&unit=2829
@@ -216,15 +228,19 @@ avg x y z = fromInteger(toInteger x + toInteger y + toInteger z) / 3
 -- итак, что такое y? y теперь имеет тип полиморфный тип (Fractional a => a), а оператор (/) как раз так и требует его
 -- что тут означает тип a? a тут - по аналогии с Num a является любым типом, который реализует класс Fractional
 -- опять же, a - это instance тайпкласса Fractional
-
 -- то есть если мы имеем полиморфный тип (Num a => a) он может приниматься любыми функциями операторами которые работают с
 -- Numeric типами
 -- Например, пусть есть такая функия:
 getDouble :: Double -> Double
 getDouble x = x
+
 -- тогда мы вполне легально можем применить выше приведенную переменную x к функции getDouble:
-xPolymorphic = 5 :: (Num a => a)
+xPolymorphic =
+  5 :: (Num a =>
+          a)
+
 getDoubleResult = getDouble xPolymorphic {-результат: 5.0-}
+
 -- на этом примере видно, что xPolymorphic просто скастилось в тип Double, так как функция getDouble принимает Double
 --
 -- еще один пример:
@@ -233,6 +249,7 @@ divFract x = x / 2
 
 -- в такую функцию мы можем опять передать xPolymorphic и получить результат
 divFractResult = divFract xPolymorphic {-2.5-}
+
 -- при чем divFractResult будет типа:
 -- :t DivFractResult - Double
 -- Double было выбрано самой функцией, нам это не важно. Важно то, что (Num a => a) легко превращается в (Fractional a => a)
@@ -250,18 +267,19 @@ divFractResult = divFract xPolymorphic {-2.5-}
 -- что собственно и происходило в выражении fromInteger(toInteger x + toInteger y + toInteger z) / 3
 -- Действительно, попробуем вызвать функцию avg:
 avgRes = avg 5 6 7
+
 -- :t avgRes
 -- avgRes :: Double
 -- так как неоднозначен тип суммы, то он просто кастится к дефолтному для Fractional типу - Double
 --
 -- Посчитать шаги редукции с механизмом разделения
 -- https://stepik.org/lesson/8421/step/5?unit=1557
-
 -- Определение функций такое:
 bar x y z = x + y
-foo a b = bar a a (a + b)
-value = foo (3 * 10) (5 - 2)
 
+foo a b = bar a a (a + b)
+
+value = foo (3 * 10) (5 - 2)
 -- Тогда если вызвана функция value, то происходит следующее:
 -- 1) foo (3 * 10) (5 - 2) превращается в
 -- bar p1 p1 (p1 + p2), где p1 - указатель на аргумент a, что это есть выражение (3 * 10), p2 - указатель на аргумент b

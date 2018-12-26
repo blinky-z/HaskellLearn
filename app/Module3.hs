@@ -3,7 +3,6 @@
 import Data.Char
 
 -- Работа со списками
-
 -- Реализуйте функцию addTwoElements, которая бы добавляла два переданных ей значения в голову переданного списка.
 -- https://stepik.org/lesson/8326/step/3?unit=1474
 addTwoElements :: a -> a -> [a] -> [a]
@@ -13,11 +12,12 @@ addTwoElements arg1 arg2 list = arg1 : arg2 : list
 --
 -- Реализуйте функцию nTimes, которая возвращает список, состоящий из повторяющихся значений ее первого аргумента.
 -- Количество повторов определяется значением второго аргумента этой функции.
-nTimes:: a -> Int -> [a]
+nTimes :: a -> Int -> [a]
 nTimes x n = nTimesHelper 0 []
   where
-    nTimesHelper cnt list | cnt == n = list
-                          | otherwise = nTimesHelper (cnt + 1) (x : list)
+    nTimesHelper cnt list
+      | cnt == n = list
+      | otherwise = nTimesHelper (cnt + 1) (x : list)
 
 --
 --
@@ -26,10 +26,11 @@ oddsOnly :: Integral a => [a] -> [a]
 oddsOnly xs = oddsOnlyHelper xs []
   where
     oddsOnlyHelper [] ans = reverseList [] ans
-    oddsOnlyHelper (x:xs) ans | odd x = oddsOnlyHelper xs (x : ans)
-                              | otherwise = oddsOnlyHelper xs ans
+    oddsOnlyHelper (x:xs) ans
+      | odd x = oddsOnlyHelper xs (x : ans)
+      | otherwise = oddsOnlyHelper xs ans
     reverseList rxs [] = rxs
-    reverseList rxs (x:xs) = reverseList (x:rxs) xs
+    reverseList rxs (x:xs) = reverseList (x : rxs) xs
 
 --
 --
@@ -37,9 +38,10 @@ oddsOnly xs = oddsOnlyHelper xs []
 isPalindrome :: Eq a => [a] -> Bool
 isPalindrome [] = True
 isPalindrome [_] = True
-isPalindrome [x,y] = x == y
-isPalindrome (x:list) | x == last list = isPalindrome (init list)
-                      | otherwise = False
+isPalindrome [x, y] = x == y
+isPalindrome (x:list)
+  | x == last list = isPalindrome (init list)
+  | otherwise = False
 
 isPalindrome' :: Eq a => [a] -> Bool
 isPalindrome' xs = xs == reverse xs
@@ -52,21 +54,24 @@ sum3 :: Num a => [a] -> [a] -> [a] -> [a]
 sum3 xs ys zs = sum3Helper [] 0
   where
     maxn = max (max (length xs) (length ys)) (length zs)
-    sum3Helper res curn | curn == maxn = reverse res
-                        | otherwise = sum3Helper ((getElem xs curn 0 + getElem ys curn 0 + getElem zs curn 0) : res) (curn + 1)
-
+    sum3Helper res curn
+      | curn == maxn = reverse res
+      | otherwise = sum3Helper ((getElem xs curn 0 + getElem ys curn 0 + getElem zs curn 0) : res) (curn + 1)
     getElem [] n curn = 0
-    getElem (x:xs) n curn | curn == n = x
-                          | otherwise = getElem xs n (curn + 1)
+    getElem (x:xs) n curn
+      | curn == n = x
+      | otherwise = getElem xs n (curn + 1)
 
 --
 --
--- Напишите функцию groupElems которая группирует одинаковые элементы в списке
+-- Напишите функцию groupElems которая группирует одинаковые элементы в списке (если они идут подряд)
 -- https://stepik.org/lesson/8326/step/13?unit=1474
 groupElems :: Eq a => [a] -> [[a]]
 groupElems [] = []
-groupElems xs = ys : groupElems zs where
-  (ys, zs) = span (== head xs) xs
+groupElems xs = ys : groupElems zs
+  where
+    (ys, zs) = span (== head xs) xs
+
 --
 --
 -- Функции высших порядков над списками
@@ -78,3 +83,41 @@ groupElems xs = ys : groupElems zs where
 -- https://stepik.org/lesson/12321/step/3?unit=2785
 readDigits :: String -> (String, String)
 readDigits = span isDigit
+
+--
+-- Реализуйте функцию
+-- filterDisj
+-- , принимающую два унарных предиката и список, и возвращающую список элементов, удовлетворяющих хотя бы одному из предикатов.
+filterDisj :: (a -> Bool) -> (a -> Bool) -> [a] -> [a]
+filterDisj pred1 pred2 xs = filterDisjHelper xs []
+  where
+    filterDisjHelper (x:xs) res
+      | pred1 x = filterDisjHelper xs (x : res)
+      | pred2 x = filterDisjHelper xs (x : res)
+      | otherwise = filterDisjHelper xs res
+    filterDisjHelper [] res = reverse res
+
+filterDisj' :: (a -> Bool) -> (a -> Bool) -> [a] -> [a]
+filterDisj' pred1 pred2 = filter (\x -> pred1 x || pred2 x)
+
+--
+-- Напишите реализацию функции qsort.
+-- Функция qsort должная принимать на вход список элементов и сортировать его в порядке возрастания с помощью сортировки Хоара:
+-- для какого-то элемента x изначального списка (обычно выбирают первый) делить список на элементы меньше и не меньше x, и потом
+-- запускаться рекурсивно на обеих частях.
+qsort :: Ord a => [a] -> [a]
+qsort [x] = [x]
+qsort [] = []
+qsort xs'@(x:xs) = qsort (filter (< x) xs') ++ filter (== x) xs' ++ qsort (filter (> x) xs')
+
+--
+-- Напишите функцию
+-- squares'n'cubes
+-- , принимающую список чисел,
+-- и возвращающую список квадратов и кубов элементов исходного списка.
+squares'n'cubes :: Num a => [a] -> [a]
+squares'n'cubes = concatMap (\x -> [x ^ 2, x ^ 3])
+
+--
+-- Воспользовавшись функциями map и concatMap, определите функцию perms, которая возвращает все перестановки,
+-- которые можно получить из данного списка, в любом порядке.
