@@ -121,3 +121,19 @@ squares'n'cubes = concatMap (\x -> [x ^ 2, x ^ 3])
 --
 -- Воспользовавшись функциями map и concatMap, определите функцию perms, которая возвращает все перестановки,
 -- которые можно получить из данного списка, в любом порядке.
+perms :: [a] -> [[a]]
+perms [] = [[]]
+perms xs = permsHelper xs
+  where
+    permsHelper [x] = [[x]]
+    permsHelper (x:xs) =
+      let list = permsHelper xs
+       in concatMap (insertInAllPos x [] 0) list
+    insertInAllPos val res curn xs
+      | curn > n = res
+      | otherwise = insertInAllPos val (insertAt xs val curn : res) (curn + 1) xs
+      where
+        n = length xs
+    insertAt xs val pos = ys ++ [val] ++ zs
+      where
+        (ys, zs) = splitAt pos xs
