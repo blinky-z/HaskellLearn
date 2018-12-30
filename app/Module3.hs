@@ -138,6 +138,15 @@ perms xs = permsHelper xs
       where
         (ys, zs) = splitAt pos xs
 
+-- более крутое решение, взял с решений на степике. Идея та же, но реализация круче
+perms' :: [a] -> [[a]]
+perms' [] = [[]]
+perms' [x] = [[x]]
+perms' (x:xs) = concatMap (insertElem x) (perms xs)
+  where
+    insertElem x [] = [[x]]
+    insertElem x yss@(y:ys) = (x : yss) : map (y :) (insertElem x ys)
+
 --
 --
 -- Реализуйте функцию delAllUpper, удаляющую из текста все слова, целиком состоящие из символов в верхнем регистре.
@@ -151,3 +160,10 @@ delAllUpper = unwords . filter (any isLower) . words
 -- содержащий на k-ой позиции наибольшее значение из чисел на этой позиции в списках-аргументах.
 max3 :: Ord a => [a] -> [a] -> [a] -> [a]
 max3 = zipWith3 (\x y z -> max (max x y) z)
+
+--
+-- Генераторы списков
+--
+-- Реализуйте c использованием функции zipWith функцию fibStream, возвращающую бесконечный список чисел Фибоначчи.
+fibStream :: [Integer]
+fibStream = 0 : 1 : zipWith (+) fibStream (tail fibStream)
