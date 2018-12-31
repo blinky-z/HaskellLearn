@@ -167,12 +167,40 @@ max3 = zipWith3 (\x y z -> max (max x y) z)
 -- Реализуйте c использованием функции zipWith функцию fibStream, возвращающую бесконечный список чисел Фибоначчи.
 fibs :: [Integer]
 fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
-
---
--- Предположим, что функция
    --repeat
    --, была бы определена следующим образом:
    --repeat = iterate repeatHelper
    --определите, как должна выглядеть функция
    --repeatHelper
-repeatHelper =
+
+--
+-- Предположим, что функция
+repeatHelper x = x
+
+--
+-- https://stepik.org/lesson/8328/step/7?unit=1476
+data Odd =
+  Odd Integer
+  deriving (Eq, Show)
+
+instance Enum Odd where
+  succ (Odd x) = Odd (x + 2)
+  pred (Odd x) = Odd (x - 2)
+  toEnum x = Odd (toInteger x)
+  fromEnum (Odd x) = fromInteger x
+  enumFrom (Odd x) = Odd x : enumFrom (succ (Odd x))
+  enumFromThen (Odd x) (Odd y) = worker (Odd x) (Odd (y - x))
+    where
+      worker (Odd x) (Odd y) = Odd x : worker (Odd (x + y)) (Odd y)
+  enumFromTo (Odd x) (Odd y) = worker (Odd x) (Odd y)
+    where
+      worker (Odd x) (Odd y)
+        | x == y = [Odd x]
+        | x > y = []
+        | otherwise = Odd x : worker (Odd (succ x)) (Odd y)
+  enumFromThenTo (Odd x) (Odd y) (Odd z) = worker (Odd x) (Odd (y - x)) (Odd z)
+    where
+      worker (Odd x) (Odd y) (Odd z)
+        | x == z = [Odd x]
+        | x > z = []
+        | otherwise = Odd x : worker (Odd (x + y)) (Odd y) (Odd z)
