@@ -165,5 +165,14 @@ max3 = zipWith3 (\x y z -> max (max x y) z)
 -- Генераторы списков
 --
 -- Реализуйте c использованием функции zipWith функцию fibStream, возвращающую бесконечный список чисел Фибоначчи.
-fibStream :: [Integer]
-fibStream = 0 : 1 : zipWith (+) fibStream (tail fibStream)
+fibs :: [Integer]
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+
+--
+-- Предположим, что функция
+   --repeat
+   --, была бы определена следующим образом:
+   --repeat = iterate repeatHelper
+   --определите, как должна выглядеть функция
+   --repeatHelper
+repeatHelper =
