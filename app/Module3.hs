@@ -197,10 +197,15 @@ instance Enum Odd where
       worker (Odd x) (Odd y)
         | x == y = [Odd x]
         | x > y = []
-        | otherwise = Odd x : worker (Odd (succ x)) (Odd y)
-  enumFromThenTo (Odd x) (Odd y) (Odd z) = worker (Odd x) (Odd (y - x)) (Odd z)
+        | otherwise = Odd x : worker (succ (Odd x)) (Odd y)
+  enumFromThenTo (Odd x1) (Odd x2) (Odd y) | x2 >= x1 = workerUp (Odd x1) (Odd (x2 - x1)) (Odd y)
+                                           | otherwise = workerDn (Odd x1) (Odd (x2 - x1)) (Odd y)
     where
-      worker (Odd x) (Odd y) (Odd z)
-        | x == z = [Odd x]
-        | x > z = []
-        | otherwise = Odd x : worker (Odd (x + y)) (Odd y) (Odd z)
+      workerUp (Odd x) (Odd d) (Odd y)
+        | x == y = [Odd x]
+        | x > y = []
+        | otherwise = Odd x : workerUp (Odd (x + d)) (Odd d) (Odd y)
+      workerDn (Odd x) (Odd d) (Odd y)
+        | x == y = [Odd x]
+        | x < y = []
+        | otherwise = Odd x : workerDn (Odd (x + d)) (Odd d) (Odd y)
