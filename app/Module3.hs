@@ -1,7 +1,6 @@
 ﻿module Module3 where
 
 import Data.Char
-import Data.List
 
 -- Работа со списками
 -- Реализуйте функцию addTwoElements, которая бы добавляла два переданных ей значения в голову переданного списка.
