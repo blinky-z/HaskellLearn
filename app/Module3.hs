@@ -1,6 +1,7 @@
 ﻿module Module3 where
 
 import Data.Char
+import Data.List
 
 -- Работа со списками
 -- Реализуйте функцию addTwoElements, которая бы добавляла два переданных ей значения в голову переданного списка.
@@ -363,13 +364,18 @@ meanList = meanListHelper . foldr (\x (s, l) -> (s + x, l + 1)) (0, 0)
 -- Используя однократный вызов свертки, реализуйте функцию evenOnly, которая выбрасывает из списка элементы,
 -- стоящие на нечетных местах, оставляя только четные.
 evenOnly :: [a] -> [a]
-evenOnly xs = evenOnlyHelper (foldr (\x (l, (ys1, ys2)) -> if even l then (l+1,(x:ys1, ys2)) else (l + 1, (ys1, x:ys2))) (0, ([],[])) xs)
+evenOnly xs = evenOnlyHelper (foldr (\x ~(l, (ys1, ys2)) -> if even l then (l+1,(x:ys1, ys2)) else (l + 1, (ys1, x:ys2))) (0, ([],[])) xs)
   where
-    evenOnlyHelper (l, (xs,ys)) | odd l = ys
-                                | otherwise = xs
+    evenOnlyHelper ~(l, (xs,ys)) | odd l = ys
+                                 | otherwise = xs
 
 --
 -- Попробуйте добиться того, чтобы реализованная вами в прошлом задании функция
-   --evenOnly
-   --позволяла работать и с бесконечными списками.
+-- evenOnly
+-- позволяла работать и с бесконечными списками.
+
+-- прошлая функция не работала из-за того, что хоть и есть lazy pattern matching, но требуется использовать l в выражение if even l,
+-- поэтому функция будет пытаться вычислить l до бексонечности
+-- в этом решении та же самая идея, что и в прошлом решении (брать по очереди элементы в разные списки), просто без счетчика
 evenOnly' :: [a] -> [a]
+evenOnly' xs = snd (foldr (\x ~(ys, zs) -> (x : zs, ys)) ([], []) xs)
