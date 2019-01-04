@@ -1,8 +1,11 @@
 module Module4 where
 
+import           Data.Function
 import           Data.List
 
--- Типы перечислений
+-- -----------------------
+-- 4.1 Типы перечислений
+-- -----------------------
 --
 -- типы данных можно делать инстансами классов типов, то есть реализовывать необзодимый интерфейс классов типов
 -- Однако, можно делать автомаетическую реализацию представителей - deriving, и компилятор автоматически сможет выводить
@@ -89,7 +92,10 @@ lessThanError lvl =
 --    (_, y) -> "Fail: " ++ show y
 --
 --
--- Типы произведений и сумм произведений
+-- -----------------------
+-- 4.2 Типы произведений и сумм произведений
+-- -----------------------
+--
 -- Тип произведения - это тип, имеющий такой конструктор данных, который принимает аргумент
 --
 -- попробуем определить свой тип данных:
@@ -267,3 +273,116 @@ fromMaybe' Nothing   = error "!!!"
 --  -> *** Exception: Irrefutable pattern failed for pattern Just x
 -- второе выражение недостижимо никогда в такой реализации
 
+--
+-- -----------------------
+-- 4.3 Синтаксис записей
+-- -----------------------
+--
+-- В хаскеле, как и в ООП, можно создавать структуры данных, например:
+data Person = Person { firstName :: String, lastName :: String, age :: Int }
+  deriving (Show, Eq)
+-- тогда можно читать поля структуры так:
+john = Person "John" "Smith" 33
+-- age john
+--  -> 33
+-- john
+--  -> Person {firstName = "John", lastName = "Smith", age = 33}
+-- john&firstName (уже более похоже на обычное ооп, где используется для доступа к полям точка. Необходимо
+-- импортировать Data.Function)
+--  -> "John"
+-- (&) :: a -> (a -> b) -> b
+-- x & f = f x
+-- как видно, & просто использует функцию firstName на объекте
+
+--
+-- https://stepik.org/lesson/5431/step/3?unit=1132
+-- Определите тип записи, который хранит элементы лога. Имя конструктора должно совпадать с именем типа, и запись должна содержать три поля:
+-- timestamp — время, когда произошло событие (типа UTCTime);
+-- logLevel — уровень события (типа LogLevel);
+-- message — сообщение об ошибке (типа String).
+-- Определите функцию
+-- logLevelToString
+-- , возвращающую текстуальное представление типа
+-- LogLevel
+-- , и функцию
+-- logEntryToString
+-- , возвращающую текстуальное представление записи в виде:
+--
+-- <время>: <уровень>: <сообщение>
+--
+--
+-- Для преобразование типа UTCTime в строку используйте функцию timeToString.
+--
+-- Решение:
+--timeToString :: UTCTime -> String
+--timeToString = formatTime defaultTimeLocale "%a %d %T"
+--
+--data LogLevel = Error | Warning | Info
+--
+--data LogEntry = LogEntry { timestamp :: UTCTime, logLevel :: LogLevel, message :: String}
+--
+--logLevelToString :: LogLevel -> String
+--logLevelToString lvl =
+--  case lvl of
+--    Error   -> "Error"
+--    Warning -> "Warning"
+--    Info    -> "Info"
+--
+--logEntryToString :: LogEntry -> String
+--logEntryToString entry = timeToString (timestamp entry) ++ ": " ++ logLevelToString (logLevel entry) ++ ": " ++ message entry
+
+--
+-- также можно создавать объекты в таком синтаксисе:
+xavier = Person {age = 40, firstName = "Phideaux", lastName = "Xavier"}
+-- этот синтаксис позволяет перечислять поля не в строгом порядке, как они идут в конструкторе типа,
+-- а также позволяет вообще не указывать некоторые поля, но при использовании данных полей возникнет runtime error
+
+--
+-- можно модифицировать поля таким образом:
+updateAge newAge person = person {age = newAge}
+-- updateAge 42 xavier
+--  -> Person {firstName = "Phideaux", lastName = "Xavier", age = 42}
+
+--
+-- Определите функцию updateLastName person1 person2, которая меняет фамилию person2 на фамилию person1.
+--data Person = Person { firstName :: String, lastName :: String, age :: Int }
+
+updateLastName :: Person -> Person -> Person
+updateLastName p1 p2 = p2 {lastName = lastName p1}
+
+-- с использованием оператора &
+updateLastName' :: Person -> Person -> Person
+updateLastName' p1 p2 = p2 {lastName = p1&lastName}
+
+--
+-- можно использовать синтаксис запией в pattern matching
+-- без pattern matching:
+name :: Person -> String
+name person = firstName person ++ " " ++ lastName person
+
+-- связывает соответвующие поля по порядку, такое мы уже использовали ранее
+name' :: Person -> String
+name' (Person fn ln _) = fn ++ " " ++ ln
+
+-- связывает только нужные нам поля, подходит для больших структур
+name'' :: Person -> String
+name'' Person {lastName = ln, firstName = fn} = fn ++ " " ++ ln
+
+-- сравнение:
+isRectangle :: Shape -> Bool
+isRectangle Rectangle {} = True
+isRectangle _            = False
+
+isRectangle' :: Shape -> Bool
+isRectangle' (Rectangle _ _) = True
+isRectangle' _               = False
+
+--
+-- Определить функцию abbrFirstName, которая сокращает имя до первой буквы с точкой, то есть, если имя было "Ivan",
+-- то после применения этой функции оно превратится в "I.". Однако, если имя было короче двух символов, то оно не меняется.
+--data Person = Person { firstName :: String, lastName :: String, age :: Int }
+
+abbrFirstName :: Person -> Person
+abbrFirstName person
+  | length (firstName person) > 2 = person {firstName = head (firstName person) : ['.']}
+  | otherwise = person
