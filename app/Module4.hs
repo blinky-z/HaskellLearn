@@ -262,7 +262,7 @@ buildBinNum x | x < 0 = Z Minus (toBin (x*(-1)))
 -- однако, если данные не удовлетворяют образцу, и если они будут использованы в правой части, произойдет runtime error
 -- например:
 fromMaybe' ~(Just x) = x
-fromMaybe' Nothing = error "!!!"
+fromMaybe' Nothing   = error "!!!"
 -- fromMaybe' (Nothing)
 --  -> *** Exception: Irrefutable pattern failed for pattern Just x
 -- второе выражение недостижимо никогда в такой реализации
