@@ -1,5 +1,6 @@
 module Module4 where
 
+import           Data.Char     (isDigit)
 import           Data.Function
 import           Data.List
 
@@ -193,7 +194,8 @@ area s =
 -- например:
 -- square :: Double -> Shape
 -- square a = Rectangle a a
--- таким образом, мы можем скрыть детали реализации типа данных, а предоставить пользователю API для работы с объектами этого типа
+-- таким образом, мы можем скрыть детали реализации типа данных, а предоставить пользователю API для работы с
+-- объектами этого типа
 -- например, из стандартной библиотеки:
 -- 2 Data.Ratio.% 3
 -- :i Data.Ratio.%
@@ -267,8 +269,9 @@ buildBinNum x | x < 0 = Z Minus (toBin (x*(-1)))
 -- таким образом, мы заставляем компилятор поверить, что там лежат именно такие данные
 -- однако, если данные не удовлетворяют образцу, и если они будут использованы в правой части, произойдет runtime error
 -- например:
-fromMaybe' ~(Just x) = x
-fromMaybe' Nothing   = error "!!!"
+--
+--fromMaybe' ~(Just x) = x
+--fromMaybe' Nothing   = error "!!!"
 -- fromMaybe' (Nothing)
 --  -> *** Exception: Irrefutable pattern failed for pattern Just x
 -- второе выражение недостижимо никогда в такой реализации
@@ -296,7 +299,8 @@ john = Person "John" "Smith" 33
 
 --
 -- https://stepik.org/lesson/5431/step/3?unit=1132
--- Определите тип записи, который хранит элементы лога. Имя конструктора должно совпадать с именем типа, и запись должна содержать три поля:
+-- Определите тип записи, который хранит элементы лога. Имя конструктора должно совпадать с именем типа, и
+-- запись должна содержать три поля:
 -- timestamp — время, когда произошло событие (типа UTCTime);
 -- logLevel — уровень события (типа LogLevel);
 -- message — сообщение об ошибке (типа String).
@@ -385,3 +389,96 @@ isRectangle' _               = False
 abbrFirstName :: Person -> Person
 abbrFirstName person@Person {firstName = fn} | length fn > 2 = person {firstName = head fn : ['.']}
                                              | otherwise = person
+
+--
+-- -----------------------
+-- 4.4 Типы с параметрами
+-- -----------------------
+--
+-- Типы с параметрами - тип, параметризованный другим типом
+-- пусть есть 2 типа координат - через точки на ней и разделенные на ячейки
+--data CoordD = CoordD Double Double
+
+--data CoordI = CoordI Int Int
+
+-- большинство операций на этих координатах будет совпадать, поэтому нам нужен универсальный тип, который
+-- вместо конкретного будет иметь произвольный тип:
+--data Coord a = Coord a a
+-- использование:
+-- Coord (3::Int) (4::Int)
+--
+-- :t Coord (3::Int) (4::Int)
+--  -> Coord (3::Int) (4::Int) :: Coord Int
+--
+-- конструктор Coord полиморфен:
+-- :t Coord
+--  -> Coord :: a -> a -> Coord a
+-- Конструктор Coord принимает 2 значения произвольных типов (a и a) и конструирует значение типа (Coord a)
+-- в приведенном выше примере мы видим различие между конструкторами данных и конструкторами типа
+-- конструктор данных порождает выражения
+-- конструктор типа же, принимает произвольный тип a и конструирует значение типа (Coord a)
+-- Говорится, что конструктор типа Coord параметризован - он содержит некоторую аппликацию,
+-- т.е. применяется к какому-то произвольному типу a и производит новый тип
+-- когда мы вызываем команду :t Coord - мы на самом деле спрашиваем не конструктор типа, а конструктор данных
+-- например, пусть Coord определен так:
+--data Coord a = Coord' a a
+-- :t Coord
+--  -> error: • Data constructor not in scope: Coord
+-- :t Coord'
+--  -> Coord' :: a -> a -> Coord a
+
+--
+-- https://stepik.org/lesson/5746/step/3?unit=1256
+-- Реализуйте функции distance, считающую расстояние между двумя точками с вещественными координатами, и manhDistance,
+-- считающую манхэттенское расстояние между двумя точками с целочисленными координатами.
+data Coord a = Coord a a deriving Show
+
+distance' :: Coord Double -> Coord Double -> Double
+distance' (Coord x y) (Coord x' y') = sqrt((x' - x) ^ 2 + (y' - y) ^ 2)
+
+manhDistance :: Coord Int -> Coord Int -> Int
+manhDistance (Coord x y) (Coord x' y') = abs(x'-x) + abs(y' - y)
+
+--
+-- https://stepik.org/lesson/5746/step/4?unit=1256
+-- Плоскость разбита на квадратные ячейки. Стороны ячеек параллельны осям координат.
+-- Координаты углов ячейки с координатой (0,0) имеют неотрицательные координаты.
+-- Один из углов этой ячейки имеет координату (0,0). С ростом координат ячеек увеличиваются координаты точек внутри этих ячеек.
+--
+-- Реализуйте функции getCenter, которая принимает координату ячейки и возвращает координату ее центра, и функцию getCell,
+-- которая принимает координату точки и возвращает номер ячейки в которой находится данная точка.
+-- В качестве первого аргумента обе эти функции принимают ширину ячейки.
+--data Coord a = Coord a a
+
+getCenter :: Double -> Coord Int -> Coord Double
+getCenter s (Coord x y) = Coord (s * fromIntegral (x + 1) - s / 2) (s * fromIntegral (y + 1) - s / 2)
+
+getCell :: Double -> Coord Double -> Coord Int
+getCell s (Coord x y) = Coord x' y'
+  where
+    x' = if x < 0 then truncate (x/s) - 1 else truncate $ x/s
+    y' = if y < 0 then truncate (y/s) - 1 else truncate $ y/s
+
+
+--
+-- https://stepik.org/lesson/5746/step/6?unit=1256
+-- Реализуйте функцию, которая ищет в строке первое вхождение символа, который является цифрой,
+-- и возвращает Nothing, если в строке нет цифр.
+
+findDigit :: [Char] -> Maybe Char
+findDigit [] = Nothing
+findDigit (x:xs) | isDigit x = Just x
+                 | otherwise = findDigit xs
+
+-- попробовал для себя через свертку решить, но это менее эффективно, чем реализация выше, из-за того что приходится
+-- разворачивать весь список, прежде чем начать его обрабатывать
+findDigit' xs = foldl f Nothing xs
+  where
+    f xs x | isDigit x =
+              case xs of
+                Nothing -> Just x
+                _       -> xs
+           | otherwise = xs
+--  здесь pattern matching в левой части уравнения происходит, более красивый код
+    f' Nothing x = if isDigit x then Just x else Nothing
+    f' xs _      = xs
