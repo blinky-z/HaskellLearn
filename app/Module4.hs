@@ -383,6 +383,5 @@ isRectangle' _               = False
 --data Person = Person { firstName :: String, lastName :: String, age :: Int }
 
 abbrFirstName :: Person -> Person
-abbrFirstName person
-  | length (firstName person) > 2 = person {firstName = head (firstName person) : ['.']}
-  | otherwise = person
+abbrFirstName person@Person {firstName = fn} | length fn > 2 = person {firstName = head fn : ['.']}
+                                             | otherwise = person
