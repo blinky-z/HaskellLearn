@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: aa08db96842771230e9e7746319e256c3c378de25867db1f03d4c77d85644ee5
+-- hash: 952ebe8f8c1fea2b9fdbbf0da453f2db76a88bc0e741013ccda8bf0968077ab3
 
 name:           HaskellLearn
 version:        0.1.0.0
@@ -44,6 +44,7 @@ executable HaskellLearn-exe
       Module2
       Module3
       Module4
+      Module4_5
       Paths_HaskellLearn
   hs-source-dirs:
       app

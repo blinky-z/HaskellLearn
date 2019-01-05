@@ -1,8 +1,9 @@
 module Module4 where
 
-import           Data.Char     (isDigit)
+import           Data.Char     (isDigit, isSpace)
 import           Data.Function
-import           Data.List
+import           Data.List     (isInfixOf)
+import           Data.Maybe
 
 -- -----------------------
 -- 4.1 Типы перечислений
@@ -482,3 +483,130 @@ findDigit' xs = foldl f Nothing xs
 --  здесь pattern matching в левой части уравнения происходит, более красивый код
     f' Nothing x = if isDigit x then Just x else Nothing
     f' xs _      = xs
+
+--
+-- https://stepik.org/lesson/5746/step/7?unit=1256
+-- Реализуйте функцию findDigitOrX, использующую функцию findDigit (последнюю реализовывать не нужно). findDigitOrX должна находить
+-- цифру в строке, а если в строке цифр нет, то она должна возвращать символ 'X'. Используйте конструкцию case.
+--findDigit :: [Char] -> Maybe Char
+
+findDigitOrX :: [Char] -> Char
+findDigitOrX xs =
+  case findDigit xs of
+    Nothing -> 'X'
+    Just x  -> x
+
+-- с помощью функции fromMaybe
+findDigitOrX' = fromMaybe 'X' . findDigit
+
+--
+-- https://stepik.org/lesson/5746/step/8?unit=1256
+-- Maybe можно рассматривать как простой контейнер, например, как список длины 0 или 1.
+-- Реализовать функции maybeToList и listToMaybe,
+-- преобразующие Maybe a в [a] и наоборот (вторая функция отбрасывает все элементы списка, кроме первого).
+maybeToList :: Maybe a -> [a]
+maybeToList (Just x) = [x]
+maybeToList Nothing  = []
+
+listToMaybe :: [a] -> Maybe a
+listToMaybe [] = Nothing
+listToMaybe xs = Just $ head xs
+
+--
+-- https://stepik.org/lesson/5746/step/9?unit=1256
+-- Реализуйте функцию parsePerson, которая разбирает строки вида firstName = John\nlastName = Connor\nage = 30 и
+-- возвращает либо результат типа Person, либо ошибку типа Error.
+--
+-- Строка, которая подается на вход, должна разбивать по символу '\n' на список строк, каждая из которых имеет вид X = Y.
+-- Если входная строка не имеет указанный вид, то функция должна возвращать ParsingError.
+-- Если указаны не все поля, то возвращается IncompleteDataError.
+-- Если в поле age указано не число, то возвращается IncorrectDataError str, где str — содержимое поля age.
+-- Если в строке присутствуют лишние поля, то они игнорируются.
+data Error = ParsingError | IncompleteDataError | IncorrectDataError String deriving Show
+
+--data Person = Person { firstName :: String, lastName :: String, age :: Int }
+
+parsePerson :: String -> Either Error Person
+parsePerson xs = helper (lines xs) "" "" ""
+  where
+    helper :: [String] -> String -> String -> String -> Either Error Person
+    helper [] fn ln age =
+      if fn /= "" && ln /= "" && age /= ""
+        then
+          if filter (not . isDigit) age /= ""
+            then Left (IncorrectDataError age)
+            else Right (Person fn ln (read age :: Int))
+        else Left IncompleteDataError
+    helper (currentField:xs) fn ln age =
+      case matchCorrectField currentField of
+        True
+          | trim (takeWhile (/= '=') currentField) == "firstName" -> helper xs (getValue currentField) ln age
+          | trim (takeWhile (/= '=') currentField) == "lastName" -> helper xs fn (getValue currentField) age
+          | trim (takeWhile (/= '=') currentField) == "age" -> helper xs fn ln (getValue currentField)
+          | otherwise -> helper xs fn ln age
+        False -> Left ParsingError
+
+    getValue xs = trim $ tail $ dropWhile (/= '=') xs
+
+    trim xs = trimHelper $ trimHelper xs
+      where
+        trimHelper = reverse . dropWhile isSpace
+
+    matchCorrectField :: String -> Bool
+    matchCorrectField xs = '=' `elem` xs
+
+--
+-- В хаскеле существует еще одна система типов над уже существующими типами
+-- Эта система типов называется kind
+-- Эта система типов показывает тип не выражения, а тип типа:
+-- :k Char
+--  -> * Char :: *
+-- :k Int
+--  -> Int :: *
+-- :k Maybe
+--  -> Maybe :: * -> *
+-- :k Maybe Int
+--  -> Maybe Int :: *
+-- данная система типов нужна для контроля за типами
+-- например, вызвав :k [],  мы можем узнать, сколько выражений какого-то типа надо передать в конструктор типа,
+-- чтобы получилось правильное выражение
+-- :k []
+-- [] :: * -> *
+-- мы видим, что чтобы образовать тип [], надо передать в конструктор типа один тип
+-- ведь объявление [] такое:
+-- data [] a
+-- итак, :t показывает тип выражения или конструктор данных, а :k показывает тип конструктора типа
+--
+-- еще один пример:
+-- мы не можем построить функцию, которая принимает Int, а возвращает [], так как конструктор типа [] параметризован:
+-- :k Int -> []
+--  -> error:
+--    • Expecting one more argument to ‘[]’
+--      Expected a type, but ‘[]’ has kind ‘* -> *’
+--    • In the type ‘Int -> []’
+-- но можем построить такую функцию:
+-- :k Int -> [] Int
+--  -> Int -> [] Int :: *
+-- или такую: :k Int -> [] Char
+--  -> Int -> [] Char :: *
+
+--
+-- https://stepik.org/lesson/5746/step/12?unit=1256
+-- Исправьте ошибку в приведенном коде.
+--eitherToMaybe :: Either a -> Maybe a
+--eitherToMaybe (Left a) = Just a
+--eitherToMaybe (Right _) = Nothing
+eitherToMaybe :: Either a b -> Maybe a
+eitherToMaybe (Left a)  = Just a
+eitherToMaybe (Right _) = Nothing
+
+--
+-- В хаскеле можно заставить конструктор данных вычислять переданные параметры сразу при создании объекта:
+-- data CoordStrict = Coord Strict!a !a
+-- если бы не ставили!, то данные не вычислялись бы, пока не были использованы
+-- например:
+-- data CoordLazy = CoordLazy a a
+-- CoordLazy 1 undefined <- работает
+
+--
+-- Module4_5
