@@ -74,9 +74,28 @@ fac n = toNat $ facHelper $ fromNat n
 data Tree a = Leaf a | Node (Tree a) (Tree a)
 
 height :: Tree a -> Int
-height (Leaf _) = 0
+height (Leaf _)   = 0
 height (Node l r) = 1 + max (height l) (height r)
 
 size :: Tree a -> Int
-size (Leaf _) = 1
+size (Leaf _)   = 1
 size (Node l r) = 1 + size l + size r
+
+--
+-- https://stepik.org/lesson/7009/step/6?unit=1472
+-- Теперь нам нужно написать функцию avg, которая считает среднее арифметическое всех значений в дереве.
+-- И мы хотим, чтобы эта функция осуществляла только один проход по дереву. Это можно сделать при помощи вспомогательной
+-- функции, возвращающей количество листьев и сумму значений в них. Реализуйте эту функцию.
+--data Tree a = Leaf a | Node (Tree a) (Tree a)
+
+avg :: Tree Int -> Int
+avg t =
+    let (c,s) = go t
+    in s `div` c
+  where
+    go :: Tree Int -> (Int,Int)
+    go (Leaf val)  = (1, val)
+    go (Node l r) =
+      let (c1, s1) = go l
+          (c2, s2) = go r
+      in (c1 + c2, s1 + s2)
