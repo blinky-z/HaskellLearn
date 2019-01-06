@@ -99,3 +99,23 @@ avg t =
       let (c1, s1) = go l
           (c2, s2) = go r
       in (c1 + c2, s1 + s2)
+
+
+--
+--
+-- Исправьте определение функции expand так, чтобы она, используя дистрибутивность (а также, возможно, ассоциативность и
+-- коммутативность), всегда возвращала значение, эквивалентное данному и являющееся суммой произведений числовых значений
+infixl 6 :+:
+infixl 7 :*:
+data Expr = Val Int | Expr :+: Expr | Expr :*: Expr
+    deriving (Show, Eq)
+
+expand :: Expr -> Expr
+expand = until (\x -> x == expand1 x) expand1
+
+expand1 :: Expr -> Expr
+expand1 ((e1 :+: e2) :*: e) = expand1 e1 :*: expand1 e :+: expand1 e2 :*: expand e
+expand1 (e :*: (e1 :+: e2)) = expand1 e :*: expand e1 :+: expand1 e :*: expand e2
+expand1 (e1 :+: e2)         = expand1 e1 :+: expand1 e2
+expand1 (e1 :*: e2)         = expand1 e1 :*: expand1 e2
+expand1 e                   = e
