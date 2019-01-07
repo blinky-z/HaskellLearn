@@ -133,9 +133,18 @@ instance Semigroup (Maybe' a) where
 
 instance Monoid a => Monoid (Maybe' a) where
     mempty = Maybe' (Just mempty)
-    Maybe' Nothing `mappend` m = m
-    m `mappend` Maybe' Nothing = m
+    Maybe' Nothing `mappend` m = Maybe' Nothing
+    m `mappend` Maybe' Nothing = Maybe' Nothing
     Maybe' (Just m1) `mappend` Maybe' (Just m2) = Maybe' (Just (m1 `mappend` m2))
+-- t1 = Maybe' (Just (Xor True)) `mappend` Maybe' (Just (Xor False)) == Maybe' {getMaybe = Just (Xor {getXor = True})}
+-- t2 = Maybe' (Just (Xor False)) `mappend` Maybe' (Just (Xor True)) == Maybe' {getMaybe = Just (Xor {getXor = True})}
+-- t3 = Maybe' (Just (Xor True)) `mappend` Maybe' (Just (Xor True)) == Maybe' {getMaybe = Just (Xor {getXor = False})}
+-- t4 = Maybe' (Just (Xor False)) `mappend` Maybe' (Just (Xor False)) == Maybe' {getMaybe = Just (Xor {getXor = False})}
+-- t1 && t2 && t3 && t4
+-- t5 = Maybe' (Just [1,2]) `mappend` Maybe' (Just [3,4]) == Maybe' {getMaybe = Just [1,2,3,4]}
+-- t6 = (mempty :: Maybe' [Int]) `mappend` Maybe' (Just [1,2]) == Maybe' {getMaybe = Just [1,2]}
+-- t7 = Maybe' (Just [1,2]) `mappend` (mempty :: Maybe' [Int]) == Maybe' {getMaybe = Just [1,2]}
+-- t8 =
 -- тест: Maybe' (Just (Xor True)) `mappend` Maybe' (Just (Xor False))
 -- должен вернуть True, возвращает False. 03:02 - пофиксил, закоммитил этот вариант
 -- тест: Maybe' (Just (Xor False)) `mappend` Maybe' (Just (Xor True))
@@ -185,3 +194,23 @@ instance Monoid a => Monoid (Maybe' a) where
 
 -- так, с mempty наконец понятно стало
 -- теперь надо реализовать mappend
+-- если к нам приходит упакованное значение типа Maybe a, упакованное в конструктор данных Just,
+-- и с другой стороны Maybe тоже значение типа Maybe a, упакованное в конструктор данных Just, то мы можем применить mappend
+-- к обоим значениям и получить новое, так как они тоже являются представителя класса Monoid
+-- если по обоим стороным не были значения, упакованные в конструктор данных Just, то с одной стороны или по обоим сторонам
+-- мы имеем Maybe' Nothing
+-- если у нас одним из операндов является Maybe' Nothing, то результат должен быть Maybe' Nothing:
+-- Maybe' Nothing - не нейтральный элемент
+-- пусть второй элемент - это mempty, а mempty в нашей реализации упакован в (Just),
+-- тогда очевидно что Maybe' Nothing `mappend` mempty = Maybe' Nothing
+-- ведь для выполнения законов Моноида мы должны обеспечить:
+-- x `mappend` mempty = x
+--
+-- если же мы передали какое-нибудь значение и mempty как два значения упакованные в конструктор данных Just,
+-- то из-за того, что принимаемый параметр сам обеспечивает моноидность (из определения - Monoid a => Monoid (Maybe' a)),
+-- то применение операции к ним, не изменит значения операнда не нейтрального элемента
+-- то есть:
+-- Maybe' (Just [1,2]) `mappend` (mempty :: (Maybe' [Int]))
+--  -> Maybe' (Just [1,2]) `mappend` Maybe' {getMaybe = Just []}
+--  -> Maybe' {getMaybe = Just [1,2]}
+-- был передан нейтральный элемент, но значение не поменялось
