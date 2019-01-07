@@ -1,5 +1,8 @@
 module Module4_6 where
 
+import qualified Data.List as L
+import           Prelude   hiding (lookup)
+
 --
 -- -----------------------
 -- 4.6 Синонимы и обертки для типов
@@ -241,3 +244,46 @@ instance Monoid a => Monoid (Maybe' a) where
 -- не должно изменять значения НЕ нейтрального элемента, а значит остается Maybe' Nothing
 -- итак, у нас есть моноидность в обоих случаях, когда было передано Nothing, завернутое в Maybe', и когда было передано
 -- значение, завернутое в Just и в Maybe'
+
+--
+-- https://stepik.org/lesson/7602/step/10?unit=1473
+-- Ниже приведено определение класса MapLike типов, похожих на тип Map.
+-- Определите представителя MapLike для типа ListMap, определенного ниже как список пар ключ-значение.
+-- Для каждого ключа должно храниться не больше одного значения. Функция insert заменяет старое значение новым, если ключ уже содержался в структуре.
+--import Prelude hiding (lookup)
+--import qualified Data.List as L
+
+class MapLike m where
+    empty :: m k v
+    lookup :: Ord k => k -> m k v -> Maybe v
+    insert :: Ord k => k -> v -> m k v -> m k v
+    delete :: Ord k => k -> m k v -> m k v
+    fromList :: Ord k => [(k,v)] -> m k v
+    fromList []         = empty
+    fromList ((k,v):xs) = insert k v (fromList xs)
+
+newtype ListMap k v = ListMap { getListMap :: [(k,v)] }
+    deriving (Eq,Show)
+
+instance MapLike ListMap where
+  empty = ListMap []
+  lookup k (ListMap []) = Nothing
+  lookup k (ListMap (x:xs)) | fst x == k = Just (snd x)
+                            | otherwise = lookup k (ListMap xs)
+  insert k v map = insertHelper (k,v) map (ListMap [])
+    where
+      insertHelper p@(k,v) (ListMap []) (ListMap produceMap) = ListMap (reverse $ p:produceMap)
+      insertHelper p@(k,v) (ListMap (x:xs)) (ListMap produceMap) | k == fst x = ListMap (reverse produceMap ++ p:xs)
+                                                                 | otherwise = insertHelper p (ListMap xs) (ListMap (x:produceMap))
+  delete k map = deleteHelper k map (ListMap [])
+    where
+      deleteHelper k (ListMap []) (ListMap produceMap) = ListMap $ reverse produceMap
+      deleteHelper k (ListMap (x:xs)) (ListMap produceMap) | k == fst x = ListMap (reverse produceMap ++ xs)
+                                                           | otherwise = deleteHelper k (ListMap xs) (ListMap (x:produceMap))
+
+--
+-- В хаскеле существуют эндоморфизмы
+-- они позволяют упаковывать функции, вида a -> a
+-- newtype Endo a = Endo { appEndo :: a -> a }
+
+
