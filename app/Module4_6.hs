@@ -133,17 +133,16 @@ instance Semigroup (Maybe' a) where
 
 instance Monoid a => Monoid (Maybe' a) where
     mempty = Maybe' (Just mempty)
-    Maybe' Nothing `mappend` m = Maybe' Nothing
-    Maybe' (Just mempty) `mappend` m = m
-    m `mappend` Maybe' (Just mempty) = m
-    m `mappend` Maybe' Nothing = Maybe' Nothing
+    Maybe' Nothing `mappend` m = m
+    m `mappend` Maybe' Nothing = m
     Maybe' (Just m1) `mappend` Maybe' (Just m2) = Maybe' (Just (m1 `mappend` m2))
 -- тест: Maybe' (Just (Xor True)) `mappend` Maybe' (Just (Xor False))
--- должен вернуть True, возвращает False
+-- должен вернуть True, возвращает False. 03:02 - пофиксил, закоммитил этот вариант
 -- тест: Maybe' (Just (Xor False)) `mappend` Maybe' (Just (Xor True))
 -- должен вернуть True, возвращает True, wat the hug !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -- mconcat [Maybe' (Just (Xor True)), Maybe' (Just (Xor False))]
 -- должен завершаться True
+-- тест: Maybe' (Just (Xor True) `mappend` Just (Xor True)) `mappend` Maybe' (Just (Xor False))
 
 -- разберем mempty:
 -- mempty = Maybe' mempty
@@ -183,3 +182,6 @@ instance Monoid a => Monoid (Maybe' a) where
 -- то есть тут мы как бы применяем Just к mempty, а значит мы упаковываем в контейнер типа (Maybe' a) значение типа
 -- (Maybe a), где значение типа a получается применением конструктора данных Just к mempty, и mempty вызовется на типе a,
 -- а до этого mempty вызывался на типе Maybe a, ведь конструктор Maybe' требует параметра типа (Maybe a)
+
+-- так, с mempty наконец понятно стало
+-- теперь надо реализовать mappend
