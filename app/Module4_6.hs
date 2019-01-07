@@ -285,5 +285,3 @@ instance MapLike ListMap where
 -- В хаскеле существуют эндоморфизмы
 -- они позволяют упаковывать функции, вида a -> a
 -- newtype Endo a = Endo { appEndo :: a -> a }
-
-
