@@ -25,7 +25,7 @@ main'' = do
       xs <- getDirectoryContents "."
       mapM_ (\x -> if substr `isInfixOf` x then do removeFile x; putStrLn ("Removing file: " ++ x) else putStr "") xs
 
--- другое решение
+-- другое решение через первоначальную фильтрацию списка
 main1'' :: IO ()
 main1'' = do
   putStr "Substring: "
