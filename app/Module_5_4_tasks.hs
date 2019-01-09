@@ -38,6 +38,10 @@ tokenize' input =
   in sequence (map asToken xs)
 -- на самом деле sequence полностью эквивалентен реализации ниже
 -- нельзя использовать sequence не понимая как работает код ниже в do-нотации
+--sequence ms = foldr k (return []) ms
+--  where
+--    k m m' = do { x <- m; xs <- m'; return (x:xs) }
+
 
 -- монодические вычисления, реализация полностью повторяет то как работала бы функция sequence
 tokenize'' input = foldr f (return []) (words input)
@@ -96,9 +100,61 @@ word `f` list  = asToken word >>= (\x -> list >>= (\xs -> return (x:xs)))
 -- так как e1 ; e2 ...
 -- здесь будет равна Nothing >> _ = Nothing
 -- и дальнейшие вычисления вообще не будут вычисляться, и результат станет сразу равен Nothing
-
+-- можно сказать, что Nothing прерывает вычисления
 
 -- в случае, если все токены правильные, работа очвидна
 -- ошибок не будет, и return (x:xs) будет генерировать монаду Maybe, в которую упакованы токены
 -- x - токен слева от f
 -- xs - результат работы справа, тоже токены
+
+--
+-- https://stepik.org/lesson/8439/step/6?unit=1574
+--Тип Board и функция nextPositions заданы, реализовывать их не нужно
+data Board
+
+--nextPositionsN :: Board -> Int -> (Board -> Bool) -> [Board]
+--nextPositionsN b 0 pred = if pred b then return b else []
+--nextPositionsN b n pred = if n < 0 then [] else
+--  do
+--    p <- nextPositions b
+--    d <- nextPositionsN p (n - 1) pred
+--    return d
+
+-- для разбора представим что, data Board = Board Int
+-- и nextPositions (Board x) = map Board [x + 1, x - 1]
+--
+-- опять же, цепочка вычислений
+-- с каждого элемента из p начинаются вычисления лямбда функции, куда передается элемент из p и в этой лямбде
+-- вызывается функция nextPositionsN p (n - 1) pred
+-- далее из каждой функции вызываются снова return d, то есть по сути можно было бы вообще не писать
+-- такой код:
+{-
+    d <- nextPositionsN p (n - 1) pred
+    return d
+-}
+-- а просто написать:
+{-
+nextPositionsN p (n - 1) pred
+-}
+-- но не важно, главное понять что будет происходить на последнем шаге, когда n = 1
+-- там вызывается для каждого элемента p (nextPositionsN p 0 pred) и этот элемент сохраняется в d
+-- как мы помним, реализация для списков такова, что применяется map к каждому элементу
+-- например, если в з было [Board 4, Board 6], то потом после применения с n = 1 лямбда функции в нем все элементы
+-- заменятся на результаты return d
+-- то есть [[Board 4], [Board 6]]
+-- но ведь у нас есть еще concat, и это превращается в [Board 4, Board 6]
+-- таких цепочек вызова будет много, сейчас мы только рассмотрели, когда исходная функция вызывается на n = 1
+-- но на самом деле, от каждого элемента будет порождаться еще 2 цепочки, то есть один элемент заменяться на список из двух
+-- Board
+-- например: [Board 4, Board 5] -> [[Board 3, Board 5], [Board 4, Board 6]]
+
+--
+-- https://stepik.org/lesson/8439/step/6?unit=1574
+pythagoreanTriple :: Int -> [(Int, Int, Int)]
+pythagoreanTriple x = if x <= 0 then [] else
+  do
+    b <- [1..x]
+    a <- [1..(b - 1)]
+    c <- [1..x]
+    True <- return (a^2 + b^2 == c^2)
+    return (a, b, c)
