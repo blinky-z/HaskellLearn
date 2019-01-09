@@ -2,6 +2,12 @@ module Module_5_4 where
 
 import           Prelude hiding (Just, Maybe, Nothing)
 
+--
+-- -----------------------
+-- 5.4 Список и Maybe как монады
+-- -----------------------
+--
+
 -- Maybe и [] - это тоже Монады
 data Maybe a = Nothing | Just a
   deriving (Eq, Ord)
