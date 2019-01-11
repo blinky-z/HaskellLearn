@@ -1,5 +1,8 @@
 module Module_5_8 where
 
+import           Control.Monad
+import           Module_5_7
+
 --
 -- -----------------------
 -- 5.8 Монада State
@@ -125,7 +128,6 @@ tick = do
 -- tick можно переписать следующим образом:
 tick' = get >>= (\n -> put(n + 1) >> return n)
 
-
 -- данная функция модифицирует состояние
 -- первый параметр - это функция, которая изменяет состояние
 modify :: (s -> s) -> State s ()
@@ -169,5 +171,64 @@ readerToState m = do
 
 --
 --
+
 writerToState :: Monoid w => Writer w a -> State w a
-writerToState m = undeifined
+writerToState m = do
+  st <- get
+  (val, messages) <- return $ runWriter m
+  put (st `mappend` messages)
+  return val
+
+-- попробуем попрограммировать в монаде State:
+-- функция succ будет возвращать увеличенное на 1 значение, т.е. измененное состояние функции tick, а значит требуется
+-- вызывать функцию execState для того, чтобы достать состояние
+succ' :: Int -> Int
+succ' n = execState tick n
+
+-- функция сложения
+-- replicate n tick порождает список из n монад tick
+-- sequence запускает вычисление этих монад
+-- в итоге, значение x будет увеличено n раз, что и явлляется сложением
+plus :: Int -> Int -> Int
+plus n x = execState (sequence_ $ replicate n tick) x
+
+-- использование:
+-- 4 `plus` 15
+--  -> 19
+
+--
+-- https://stepik.org/lesson/8444/step/9?unit=1579
+fibStep :: State (Integer, Integer) ()
+fibStep = do
+  (a, b) <- get
+  put (b, a + b)
+
+execStateN :: Int -> State s a -> s -> s
+execStateN n m x = execState (replicateM_ n m) x
+
+fib :: Int -> Integer
+fib n = fst $ execStateN n fibStep (0, 1)
+
+--
+-- https://stepik.org/lesson/8444/step/10?unit=1579
+data Tree a = Leaf a | Fork (Tree a) a (Tree a) deriving Show
+
+numberTree :: Tree () -> Tree Integer
+numberTree tree = evalState helper (tree, 1)
+  where
+    helper :: State (Tree (), Integer) (Tree Integer)
+    helper = do
+      (t, n) <- get
+      case t of
+        Leaf ()    -> do
+          put (t, n + 1)
+          return $ Leaf n
+        Fork l _ r -> do
+          put (l, n)
+          l1 <- helper
+          (_, middleN) <- get
+          put (r, middleN + 1)
+          r1 <- helper
+          return $ Fork l1 middleN r1
+
+-- numberTree (Fork (Fork (Leaf ()) () (Leaf ())) () (Fork (Leaf ()) () (Leaf ())))

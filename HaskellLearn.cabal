@@ -59,7 +59,6 @@ executable HaskellLearn-exe
       Module_5_7
       Module_5_7_tasks
       Module_5_8
-      Module_5_8_tasks
       Paths_HaskellLearn
   hs-source-dirs:
       app
