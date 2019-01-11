@@ -41,7 +41,6 @@
     <orderEntry type="library" name="mtl-2.2.2" level="project" />
     <orderEntry type="library" name="utf8-string-1.0.1.1" level="project" />
     <orderEntry type="library" name="cpphs-1.20.8" level="project" />
-    <orderEntry type="library" name="array-0.5.2.0" level="project" />
     <orderEntry type="library" name="QuickCheck-2.11.3" level="project" />
     <orderEntry type="library" name="socks-0.5.6" level="project" />
     <orderEntry type="library" name="template-haskell-2.13.0.0" level="project" />
@@ -60,7 +59,6 @@
     <orderEntry type="library" name="old-locale-1.0.0.7" level="project" />
     <orderEntry type="library" name="asn1-types-0.3.2" level="project" />
     <orderEntry type="library" name="cmdargs-0.10.20" level="project" />
-    <orderEntry type="library" name="Cabal-2.2.0.1" level="project" />
     <orderEntry type="library" name="iproute-1.7.6" level="project" />
     <orderEntry type="library" name="wai-3.2.1.2" level="project" />
     <orderEntry type="library" name="js-jquery-3.3.1" level="project" />
@@ -158,5 +156,7 @@
     <orderEntry type="library" name="bsb-http-chunked-0.0.0.4" level="project" />
     <orderEntry type="library" name="hashable-1.2.7.0" level="project" />
     <orderEntry type="library" name="ghc-prim-0.5.2.0" level="project" />
+    <orderEntry type="library" name="Cabal-2.2.0.1" level="project" />
+    <orderEntry type="library" name="array-0.5.2.0" level="project" />
   </component>
 </module>

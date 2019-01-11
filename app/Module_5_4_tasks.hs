@@ -47,9 +47,9 @@ tokenize' input =
 tokenize'' input = foldr f (return []) (words input)
   where
     word `f` list = do
-    x <- asToken word
-    xs <- list
-    return (x:xs)
+      x <- asToken word
+      xs <- list
+      return (x:xs)
 
 -- можно легко переписать данный код не в do-нотации по правилам трансляции:
 word `f` list  = asToken word >>= (\x -> list >>= (\xs -> return (x:xs)))
